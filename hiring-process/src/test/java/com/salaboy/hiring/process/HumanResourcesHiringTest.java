@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 
@@ -52,24 +51,8 @@ import org.kie.internal.task.api.TaskService;
 import org.kie.internal.task.api.model.TaskSummary;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
-import java.util.logging.Logger;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.InjectionPoint;
-import javax.inject.Named;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceUnit;
-import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
-import org.jbpm.shared.services.cdi.Selectable;
-import org.kie.commons.io.IOService;
-import org.kie.commons.io.impl.IOServiceNio2WrapperImpl;
-import org.kie.internal.runtime.manager.RuntimeEnvironment;
-import org.kie.internal.runtime.manager.cdi.qualifier.PerProcessInstance;
-import org.kie.internal.runtime.manager.cdi.qualifier.PerRequest;
-import org.kie.internal.runtime.manager.cdi.qualifier.Singleton;
-import org.kie.internal.task.api.UserGroupCallback;
 import org.kie.internal.task.api.model.Content;
 import org.kie.internal.task.api.model.Task;
 
@@ -154,7 +137,6 @@ public class HumanResourcesHiringTest {
     @After
     public void tearDownTest() {
     }
-    
     @Inject
     private EntityManagerFactory emf;
     @Inject
@@ -228,6 +210,71 @@ public class HumanResourcesHiringTest {
         assertEquals(29, taskContent.get("in.age"));
         assertEquals("salaboy", taskContent.get("in.name"));
 
+        taskService.claim(techInterview.getId(), "salaboy");
+
+        taskService.start(techInterview.getId(), "salaboy");
+
+
+        Map<String, Object> techOutput = new HashMap<String, Object>();
+        techOutput.put("out.skills", "java, jbpm, drools");
+        techOutput.put("out.twitter", "@salaboy");
+        techOutput.put("out.score", 8);
+
+        taskService.complete(techInterview.getId(), "salaboy", techOutput);
+
+
+        tasks = taskService.getTasksAssignedByGroup("HR", "en-UK");
+        assertNotNull(tasks);
+        assertEquals(1, tasks.size());
+        TaskSummary createProposal = tasks.get(0);
+
+        Task createProposalTask = taskService.getTaskById(createProposal.getId());
+        contentById = taskService.getContentById(createProposalTask.getTaskData().getDocumentContentId());
+        assertNotNull(contentById);
+        taskContent = (Map<String, Object>) ContentMarshallerHelper.unmarshall(contentById.getContent(), null);
+
+        assertEquals(4, taskContent.size());
+
+        assertEquals(8, taskContent.get("in.tech_score"));
+        assertEquals(8, taskContent.get("in.hr_score"));
+
+
+        taskService.claim(createProposal.getId(), "katy");
+
+        taskService.start(createProposal.getId(), "katy");
+
+        Map<String, Object> proposalOutput = new HashMap<String, Object>();
+        proposalOutput.put("out.offering", 10000);
+
+
+        taskService.complete(createProposal.getId(), "katy", proposalOutput);
+
+        tasks = taskService.getTasksAssignedByGroup("HR", "en-UK");
+        assertNotNull(tasks);
+        assertEquals(1, tasks.size());
+        TaskSummary signContract = tasks.get(0);
+
+        Task signContractTask = taskService.getTaskById(signContract.getId());
+        contentById = taskService.getContentById(signContractTask.getTaskData().getDocumentContentId());
+        assertNotNull(contentById);
+        taskContent = (Map<String, Object>) ContentMarshallerHelper.unmarshall(contentById.getContent(), null);
+
+        assertEquals(4, taskContent.size());
+
+        assertEquals(10000, taskContent.get("in.offering"));
+        assertEquals("salaboy", taskContent.get("in.name"));
+
+        taskService.claim(signContract.getId(), "katy");
+
+        taskService.start(signContract.getId(), "katy");
+
+        Map<String, Object> signOutput = new HashMap<String, Object>();
+        signOutput.put("out.signed", true);
+        taskService.complete(signContract.getId(), "katy", signOutput);
+
+
+        
+        
         int removeAllTasks = taskService.removeAllTasks();
         System.out.println(">>> Removed Tasks > " + removeAllTasks);
     }
