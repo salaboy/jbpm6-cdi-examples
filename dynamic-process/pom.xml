@@ -7,7 +7,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Dynamic Process & Rules Example</name>
+    <name>Dynamic Process and Rules Example</name>
     <url>http://salaboy.com</url>
 
     <properties>
