@@ -181,6 +181,7 @@ public class RulesIntegrationTest {
  
     	RuntimeEngine runtime = manager.getRuntimeEngine(context);
         final KieSession ksession = runtime.getKieSession();
+        
  
         ksession.addEventListener(
                 new DefaultAgendaEventListener() {
@@ -258,7 +259,7 @@ public class RulesIntegrationTest {
         taskService.start(readinessReview.getId(), "paul");
 
         Map<String, Object> hrOutput = new HashMap<String, Object>();
-        hrOutput.put("out.readiness", "no");
+        hrOutput.put("out.readiness", "ok");
 
         taskService.complete(readinessReview.getId(), "paul", hrOutput);
         //assertNotNull(contentById);

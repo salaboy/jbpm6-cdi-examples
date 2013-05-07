@@ -1,9 +1,12 @@
 package com.sample;
+import com.saiful.phdprocess.*;
 
 global java.util.List list;
 
 rule MyRule
   when
+      ProcessVariable(name=="readiness")      
+      
   then
     System.out.println("from BR");
 end
