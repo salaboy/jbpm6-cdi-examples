@@ -42,19 +42,22 @@ import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.manager.Context;
-import org.kie.internal.runtime.manager.RuntimeEngine;
-import org.kie.internal.runtime.manager.RuntimeManager;
 import org.kie.internal.runtime.manager.RuntimeManagerFactory;
 import org.kie.internal.runtime.manager.context.EmptyContext;
-import org.kie.internal.task.api.TaskService;
-import org.kie.internal.task.api.model.TaskSummary;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
+
 import javax.enterprise.inject.spi.BeanManager;
+import org.jbpm.runtime.manager.impl.task.SynchronizedTaskService;
+import org.jbpm.services.task.impl.TaskServiceEntryPointImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
-import org.kie.internal.task.api.model.Content;
-import org.kie.internal.task.api.model.Task;
+import org.kie.api.runtime.manager.Context;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.api.task.TaskService;
+import org.kie.api.task.model.Content;
+import org.kie.api.task.model.Task;
+import org.kie.api.task.model.TaskSummary;
 
 /**
  *
@@ -102,15 +105,15 @@ public class HumanResourcesHiringTest {
                 .addPackage("org.jbpm.runtime.manager.impl.tx")
                 .addPackage("org.jbpm.shared.services.api")
                 .addPackage("org.jbpm.shared.services.impl")
-                .addPackage("org.droolsjbpm.services.api")
-                .addPackage("org.droolsjbpm.services.impl")
-                .addPackage("org.droolsjbpm.services.api.bpmn2")
-                .addPackage("org.droolsjbpm.services.impl.bpmn2")
-                .addPackage("org.droolsjbpm.services.impl.event.listeners")
-                .addPackage("org.droolsjbpm.services.impl.audit")
-                .addPackage("org.droolsjbpm.services.impl.util")
-                .addPackage("org.droolsjbpm.services.impl.vfs")
-                .addPackage("org.droolsjbpm.services.impl.example")
+                .addPackage("org.jbpm.kie.services.api")
+                .addPackage("org.jbpm.kie.services.impl")
+                .addPackage("org.jbpm.kie.services.api.bpmn2")
+                .addPackage("org.jbpm.kie.services.impl.bpmn2")
+                .addPackage("org.jbpm.kie.services.impl.event.listeners")
+                .addPackage("org.jbpm.kie.services.impl.audit")
+                .addPackage("org.jbpm.kie.services.impl.util")
+                .addPackage("org.jbpm.kie.services.impl.vfs")
+                .addPackage("org.jbpm.kie.services.impl.example")
                 .addPackage("org.kie.commons.java.nio.fs.jgit")
                 .addPackage("com.salaboy.hiring.process")
                 .addAsResource("jndi.properties", "jndi.properties")
@@ -173,7 +176,7 @@ public class HumanResourcesHiringTest {
 
         ProcessInstance processInstance = ksession.startProcess("hiring");
 
-        List<TaskSummary> tasks = taskService.getTasksAssignedByGroup("HR", "en-UK");
+        List<TaskSummary> tasks = ((SynchronizedTaskService)taskService).getTasksAssignedByGroup("HR", "en-UK");
 
         TaskSummary HRInterview = tasks.get(0);
 
@@ -182,10 +185,10 @@ public class HumanResourcesHiringTest {
         taskService.start(HRInterview.getId(), "katy");
 
         Map<String, Object> hrOutput = new HashMap<String, Object>();
-        hrOutput.put("out.name", "salaboy");
-        hrOutput.put("out.age", 29);
-        hrOutput.put("out.mail", "salaboy@gmail.com");
-        hrOutput.put("out.score", 8);
+        hrOutput.put("out_name", "salaboy");
+        hrOutput.put("out_age", 29);
+        hrOutput.put("out_mail", "salaboy@gmail.com");
+        hrOutput.put("out_score", 8);
 
         taskService.complete(HRInterview.getId(), "katy", hrOutput);
 
@@ -194,7 +197,8 @@ public class HumanResourcesHiringTest {
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
 
-        tasks = taskService.getTasksAssignedByGroup("IT", "en-UK");
+        tasks = ((SynchronizedTaskService)taskService).getTasksAssignedByGroup("IT", "en-UK");
+       
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
         TaskSummary techInterview = tasks.get(0);
@@ -206,9 +210,9 @@ public class HumanResourcesHiringTest {
 
         assertEquals(5, taskContent.size());
 
-        assertEquals("salaboy@gmail.com", taskContent.get("in.mail"));
-        assertEquals(29, taskContent.get("in.age"));
-        assertEquals("salaboy", taskContent.get("in.name"));
+        assertEquals("salaboy@gmail.com", taskContent.get("in_mail"));
+        assertEquals(29, taskContent.get("in_age"));
+        assertEquals("salaboy", taskContent.get("in_name"));
 
         taskService.claim(techInterview.getId(), "salaboy");
 
@@ -216,14 +220,14 @@ public class HumanResourcesHiringTest {
 
 
         Map<String, Object> techOutput = new HashMap<String, Object>();
-        techOutput.put("out.skills", "java, jbpm, drools");
-        techOutput.put("out.twitter", "@salaboy");
-        techOutput.put("out.score", 8);
+        techOutput.put("out_skills", "java, jbpm, drools");
+        techOutput.put("out_twitter", "@salaboy");
+        techOutput.put("out_score", 8);
 
         taskService.complete(techInterview.getId(), "salaboy", techOutput);
 
 
-        tasks = taskService.getTasksAssignedByGroup("HR", "en-UK");
+        tasks = taskService.getTasksAssignedAsPotentialOwner("Accounting", "en-UK");
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
         TaskSummary createProposal = tasks.get(0);
@@ -235,21 +239,23 @@ public class HumanResourcesHiringTest {
 
         assertEquals(4, taskContent.size());
 
-        assertEquals(8, taskContent.get("in.tech_score"));
-        assertEquals(8, taskContent.get("in.hr_score"));
+        assertEquals(8, taskContent.get("in_tech_score"));
+        assertEquals(8, taskContent.get("in_hr_score"));
 
 
-        taskService.claim(createProposal.getId(), "katy");
+        taskService.claim(createProposal.getId(), "john");
 
-        taskService.start(createProposal.getId(), "katy");
+        taskService.start(createProposal.getId(), "john");
 
         Map<String, Object> proposalOutput = new HashMap<String, Object>();
-        proposalOutput.put("out.offering", 10000);
+        proposalOutput.put("out_offering", 10000);
 
 
-        taskService.complete(createProposal.getId(), "katy", proposalOutput);
+        taskService.complete(createProposal.getId(), "john", proposalOutput);
 
-        tasks = taskService.getTasksAssignedByGroup("HR", "en-UK");
+        
+        tasks = ((SynchronizedTaskService)taskService).getTasksAssignedByGroup("HR", "en-UK");
+        
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
         TaskSummary signContract = tasks.get(0);
@@ -261,21 +267,19 @@ public class HumanResourcesHiringTest {
 
         assertEquals(4, taskContent.size());
 
-        assertEquals(10000, taskContent.get("in.offering"));
-        assertEquals("salaboy", taskContent.get("in.name"));
+        assertEquals(10000, taskContent.get("in_offering"));
+        assertEquals("salaboy", taskContent.get("in_name"));
 
         taskService.claim(signContract.getId(), "katy");
 
         taskService.start(signContract.getId(), "katy");
 
         Map<String, Object> signOutput = new HashMap<String, Object>();
-        signOutput.put("out.signed", true);
+        signOutput.put("out_signed", true);
         taskService.complete(signContract.getId(), "katy", signOutput);
 
-
         
-        
-        int removeAllTasks = taskService.removeAllTasks();
+        int removeAllTasks = ((SynchronizedTaskService)taskService).removeAllTasks();
         System.out.println(">>> Removed Tasks > " + removeAllTasks);
     }
 }

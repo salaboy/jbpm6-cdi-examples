@@ -40,9 +40,7 @@
     <!-- Event Classes -->
     <class>org.jbpm.services.task.impl.model.TaskEventImpl</class>
     
-    <class>org.droolsjbpm.services.impl.model.ProcessDesc</class>
-    <class>org.droolsjbpm.services.impl.model.ProcessInputDesc</class>
-    <class>org.droolsjbpm.services.impl.model.RuleNotificationInstanceDesc</class>
+   
     
 
     <class>org.drools.persistence.info.SessionInfo</class>
@@ -56,10 +54,7 @@
     <class>org.jbpm.process.audit.NodeInstanceLog</class>
     <class>org.jbpm.process.audit.VariableInstanceLog</class>    
     
-    <!-- domain --> 
-    <class>org.droolsjbpm.services.domain.entities.Domain</class>
-    <class>org.droolsjbpm.services.domain.entities.Organization</class>
-    <class>org.droolsjbpm.services.domain.entities.RuntimeId</class>
+  
 
    
     <properties>

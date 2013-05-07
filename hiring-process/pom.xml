@@ -7,8 +7,8 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>hiring-process</name>
-    <url>http://maven.apache.org</url>
+    <name>Hiring Process Example</name>
+    <url>http://salaboy.com</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +20,7 @@
         
         <dependency>
             <groupId>org.jbpm</groupId>
-            <artifactId>droolsjbpm-knowledge-services</artifactId>
+            <artifactId>jbpm-kie-services</artifactId>
             <version>${jbpm.version}</version>
         </dependency>
         <dependency>
@@ -30,7 +30,7 @@
         </dependency>
         <dependency>
             <groupId>org.jbpm</groupId>
-            <artifactId>jbpm-human-task-services</artifactId>
+            <artifactId>jbpm-human-task-core</artifactId>
             <version>${jbpm.version}</version>
         </dependency>
         

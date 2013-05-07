@@ -3,7 +3,7 @@ package com.salaboy.hiring.process;
 import java.util.Collections;
 import java.util.List;
 
-import org.droolsjbpm.services.api.IdentityProvider;
+import org.jbpm.kie.services.api.IdentityProvider;
 
 public class TestIdentityProvider implements IdentityProvider {
 
