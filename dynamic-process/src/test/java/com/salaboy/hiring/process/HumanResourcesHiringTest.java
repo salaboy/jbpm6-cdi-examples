@@ -157,7 +157,7 @@ public class HumanResourcesHiringTest {
         builder.addAsset(ResourceFactory.newClassPathResource("repo/hiring.bpmn2"), ResourceType.BPMN2);
 
 
-        RuntimeManager manager = managerFactory.newSingletonRuntimeManager(builder.get());
+        RuntimeManager manager = managerFactory.newSingletonRuntimeManager(builder.get(), "hiring-process");
         testHiringProcess(manager, EmptyContext.get());
 
         manager.close();

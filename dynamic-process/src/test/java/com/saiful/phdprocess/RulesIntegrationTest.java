@@ -169,7 +169,7 @@ public class RulesIntegrationTest {
         builder.addAsset(ResourceFactory.newClassPathResource("phdrepo/BPMN2-RuleTask2.drl"), ResourceType.DRL);
         builder.addAsset(ResourceFactory.newClassPathResource("phdrepo/BPMN2-RuleTask2.bpmn2"), ResourceType.BPMN2);
 
-        org.kie.api.runtime.manager.RuntimeManager manager = managerFactory.newSingletonRuntimeManager(builder.get());
+        org.kie.api.runtime.manager.RuntimeManager manager = managerFactory.newSingletonRuntimeManager(builder.get(), "dynamic-processes");
         testHiringProcess(manager, EmptyContext.get());
 
         manager.close();

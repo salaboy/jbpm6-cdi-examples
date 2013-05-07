@@ -4,13 +4,15 @@
  */
 package com.saiful.phdprocess;
 
+import java.io.Serializable;
+
 /**
  *
  * @author salaboy
  */
 //@PropertySpecific
 
-public class ProcessVariable<T> {
+public class ProcessVariable<T> implements Serializable {
     private long processInstanceId;
     private String name;
     private T value;
