@@ -2,6 +2,8 @@ usersgroups = [
                 new User('salaboy') :  [new Group("IT")],
                 new User('katy') : [new Group( "HR" )],
                 new User('john') : [new Group( "Accounting" )],
+                new User('paul') : [new Group( "staff" )],
+                new User('chris') : [new Group( "staff" )],
                 new User('Administrator') : [new Group( "HR" ), new Group( "Accounting" ), new Group( "IT" )]
               ];       
 return usersgroups;

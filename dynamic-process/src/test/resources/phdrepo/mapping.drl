@@ -1,0 +1,53 @@
+package  com.saiful.phdprocess;
+
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import com.saiful.phdprocess.*;
+import java.io.Serializable;
+import java.util.*;
+
+
+declare ProcessVariable
+    @typesafe(false)
+end
+
+declare OnEntryNodeEvent
+    @role( event)
+end
+
+declare OnExitNodeEvent
+    @role( event)
+end
+
+query allProcessVariables()
+    $pv: ProcessVariable()
+end
+
+query allProcessVariablesByProcessId(long $processInstanceId)
+    $pv: ProcessVariable(processInstanceId == $processInstanceId)
+end
+
+query allProcessVariablesByName(String $name)
+    $pv: ProcessVariable(name == $name)
+end
+
+query allProcessVariablesByNameFromProcessId(long $processInstanceId, String $name)
+    $pv: ProcessVariable(processInstanceId == $processInstanceId, name == $name)
+end
+
+//rule "Log"
+//    when
+//        $o: Object()
+//    then
+//        System.out.println(" >>> Object : "+$o);
+//end     
+
+rule "init"
+    salience 9999
+    when
+        WorkflowProcessInstanceImpl($id: id, $vars: variables)
+    then
+        System.out.println(" I'm going to insert "+$vars.keySet().size() +" process variables " +$vars);
+        for(int i = 0; i < $vars.keySet().size(); i++){
+           insertLogical(new ProcessVariable($id, (String)$vars.keySet().toArray()[i], $vars.values().toArray()[i]));
+        }
+end
