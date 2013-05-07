@@ -1,9 +1,16 @@
 package com.sample;
+import com.saiful.phdprocess.*;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.kie.api.task.TaskService;
 
-global java.util.List list;
+global TaskService taskService;
 
 rule MyRule
   when
+        WorkflowProcessInstanceImpl($readiness: variables['readiness'] == "ok")
   then
-    System.out.println("from BR");
+    System.out.println(">>>>>>>>>>>>>> from BR -> "+$readiness);
+    //taskService.addTask();
+
+    
 end

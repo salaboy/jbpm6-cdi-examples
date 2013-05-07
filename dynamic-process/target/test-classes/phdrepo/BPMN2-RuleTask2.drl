@@ -1,9 +1,11 @@
 package com.sample;
-
+import com.saiful.phdprocess.*;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 global java.util.List list;
 
 rule MyRule
   when
+        WorkflowProcessInstanceImpl($readiness: variables['readiness'] == "ok")
   then
-    System.out.println("from BR");
+    System.out.println(">>>>>>>>>>>>>> from BR -> "+$readiness);
 end

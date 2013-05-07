@@ -20,6 +20,10 @@
   <itemDefinition id="_4-studentidItem" structureRef="String" />
   <itemDefinition id="_4-studentItem" structureRef="com.saiful.phdprocess.Student" />
 
+  <itemDefinition id="_6-readinessItem" structureRef="String" />
+  <itemDefinition id="_6-studentidItem" structureRef="String" />
+  <itemDefinition id="_6-studentItem" structureRef="com.saiful.phdprocess.Student" />
+
   <process processType="Private" isExecutable="true" id="com.saiful.phdprocess.DynamicAdaptation" name="RuleTask Process" tns:packageName="defaultPackage" >
 
     <!-- process variables -->
@@ -55,7 +59,20 @@
     <scriptTask id="_5" name="Script" >
       <script>System.out.println("from script");</script>
     </scriptTask>
-    <endEvent id="_6" name="End" >
+    <userTask id="_6" name="User Task" >
+      <ioSpecification>
+        <inputSet>
+        </inputSet>
+        <outputSet>
+        </outputSet>
+      </ioSpecification>
+      <potentialOwner>
+        <resourceAssignmentExpression>
+          <formalExpression>paul</formalExpression>
+        </resourceAssignmentExpression>
+      </potentialOwner>
+    </userTask>
+    <endEvent id="_7" name="End" >
         <terminateEventDefinition/>
     </endEvent>
 
@@ -63,6 +80,7 @@
     <sequenceFlow id="_1-_4" sourceRef="_1" targetRef="_4" />
     <sequenceFlow id="_4-_5" sourceRef="_4" targetRef="_5" />
     <sequenceFlow id="_5-_6" sourceRef="_5" targetRef="_6" />
+    <sequenceFlow id="_6-_7" sourceRef="_6" targetRef="_7" />
 
   </process>
 
@@ -78,7 +96,10 @@
         <dc:Bounds x="239" y="16" width="80" height="48" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="_6" >
-        <dc:Bounds x="376" y="21" width="48" height="48" />
+        <dc:Bounds x="382" y="43" width="100" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_7" >
+        <dc:Bounds x="543" y="62" width="48" height="48" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="_1-_4" >
         <di:waypoint x="40" y="40" />
@@ -90,7 +111,11 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="_5-_6" >
         <di:waypoint x="279" y="40" />
-        <di:waypoint x="400" y="45" />
+        <di:waypoint x="432" y="67" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_6-_7" >
+        <di:waypoint x="432" y="67" />
+        <di:waypoint x="567" y="86" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
