@@ -1,12 +1,27 @@
 package com.sample;
 import com.saiful.phdprocess.*;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.kie.api.task.TaskService;
+import org.jbpm.services.task.impl.factories.TaskFactory;
 
-global java.util.List list;
+global TaskService taskService;
 
 rule MyRule
   when
-      ProcessVariable(name=="readiness")      
-      
+        WorkflowProcessInstanceImpl($readiness: variables['readiness'] == "ok")
   then
-    System.out.println("from BR");
+    System.out.println(">>>>>>>>>>>>>> from BR -> "+$readiness);
+        //String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        //str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('paul') ], }),";
+        //str += "names = [ new I18NText( 'en-UK', 'Viva Result')] })";
+        
+
+        //Task task = ( Task )  TaskFactory.evalTask( new StringReader( str ));
+        //taskService.addTask(task,new HashMap<String, Object>());
+
+        //long taskId = task.getId();
+        //taskService.start(taskId,"paul" );
+        //taskService.complete(taskId, "paul", new HashMap<String, Object>() );
+
+    
 end
