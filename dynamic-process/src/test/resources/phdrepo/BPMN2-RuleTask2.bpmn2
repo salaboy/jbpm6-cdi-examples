@@ -15,14 +15,17 @@
   <itemDefinition id="_readinessItem" structureRef="String" />
   <itemDefinition id="_studentidItem" structureRef="String" />
   <itemDefinition id="_studentItem" structureRef="com.saiful.phdprocess.Student" />
+  <itemDefinition id="_vivaresultItem" structureRef="String" />
 
   <itemDefinition id="_4-readinessItem" structureRef="String" />
   <itemDefinition id="_4-studentidItem" structureRef="String" />
   <itemDefinition id="_4-studentItem" structureRef="com.saiful.phdprocess.Student" />
+  <itemDefinition id="_4-vivaresultItem" structureRef="String" />
 
   <itemDefinition id="_6-readinessItem" structureRef="String" />
   <itemDefinition id="_6-studentidItem" structureRef="String" />
   <itemDefinition id="_6-studentItem" structureRef="com.saiful.phdprocess.Student" />
+  <itemDefinition id="_6-vivaresultItem" structureRef="String" />
 
   <process processType="Private" isExecutable="true" id="com.saiful.phdprocess.DynamicAdaptation" name="RuleTask Process" tns:packageName="defaultPackage" >
 
@@ -30,6 +33,7 @@
     <property id="readiness" itemSubjectRef="_readinessItem"/>
     <property id="studentid" itemSubjectRef="_studentidItem"/>
     <property id="student" itemSubjectRef="_studentItem"/>
+    <property id="vivaresult" itemSubjectRef="_vivaresultItem"/>
 
     <!-- nodes -->
     <startEvent id="_1" name="StartProcess" />
@@ -57,7 +61,7 @@
       </dataOutputAssociation>
     </userTask>
     <scriptTask id="_5" name="Script" >
-      <script>System.out.println("from script");</script>
+      <script>System.out.println("&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;from script");</script>
     </scriptTask>
     <userTask id="_6" name="User Task" >
       <ioSpecification>
