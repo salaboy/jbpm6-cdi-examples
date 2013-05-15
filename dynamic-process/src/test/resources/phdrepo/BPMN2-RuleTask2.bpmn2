@@ -22,11 +22,6 @@
   <itemDefinition id="_4-studentItem" structureRef="com.saiful.phdprocess.Student" />
   <itemDefinition id="_4-vivaresultItem" structureRef="String" />
 
-  <itemDefinition id="_6-readinessItem" structureRef="String" />
-  <itemDefinition id="_6-studentidItem" structureRef="String" />
-  <itemDefinition id="_6-studentItem" structureRef="com.saiful.phdprocess.Student" />
-  <itemDefinition id="_6-vivaresultItem" structureRef="String" />
-
   <process processType="Private" isExecutable="true" id="com.saiful.phdprocess.DynamicAdaptation" name="RuleTask Process" tns:packageName="defaultPackage" >
 
     <!-- process variables -->
@@ -37,17 +32,46 @@
 
     <!-- nodes -->
     <startEvent id="_1" name="StartProcess" />
-    <userTask id="_4" name="User Task" >
+    <userTask id="_4" name="Viva" >
       <ioSpecification>
+        <dataInput id="_4_CommentInput" name="Comment" />
+        <dataInput id="_4_SkippableInput" name="Skippable" />
+        <dataInput id="_4_TaskNameInput" name="TaskName" />
         <dataInput id="_4_GroupIdInput" name="GroupId" />
-        <dataOutput id="_4_out.readinessOutput" name="out.readiness" />
+        <dataInput id="_4_PriorityInput" name="Priority" />
+        <dataOutput id="_4_out.vivaresultOutput" name="out.vivaresult" />
         <inputSet>
+          <dataInputRefs>_4_CommentInput</dataInputRefs>
+          <dataInputRefs>_4_SkippableInput</dataInputRefs>
+          <dataInputRefs>_4_TaskNameInput</dataInputRefs>
           <dataInputRefs>_4_GroupIdInput</dataInputRefs>
+          <dataInputRefs>_4_PriorityInput</dataInputRefs>
         </inputSet>
         <outputSet>
-          <dataOutputRefs>_4_out.readinessOutput</dataOutputRefs>
+          <dataOutputRefs>_4_out.vivaresultOutput</dataOutputRefs>
         </outputSet>
       </ioSpecification>
+      <dataInputAssociation>
+        <targetRef>_4_CommentInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression"></from>
+          <to xsi:type="tFormalExpression">_4_CommentInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_4_SkippableInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">false</from>
+          <to xsi:type="tFormalExpression">_4_SkippableInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_4_TaskNameInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">Viva</from>
+          <to xsi:type="tFormalExpression">_4_TaskNameInput</to>
+        </assignment>
+      </dataInputAssociation>
       <dataInputAssociation>
         <targetRef>_4_GroupIdInput</targetRef>
         <assignment>
@@ -55,71 +79,64 @@
           <to xsi:type="tFormalExpression">_4_GroupIdInput</to>
         </assignment>
       </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>_4_PriorityInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression"></from>
+          <to xsi:type="tFormalExpression">_4_PriorityInput</to>
+        </assignment>
+      </dataInputAssociation>
       <dataOutputAssociation>
-        <sourceRef>_4_out.readinessOutput</sourceRef>
-        <targetRef>readiness</targetRef>
+        <sourceRef>_4_out.vivaresultOutput</sourceRef>
+        <targetRef>vivaresult</targetRef>
       </dataOutputAssociation>
-    </userTask>
-    <scriptTask id="_5" name="Script" >
-      <script>System.out.println("&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;from script");</script>
-    </scriptTask>
-    <userTask id="_6" name="User Task" >
-      <ioSpecification>
-        <inputSet>
-        </inputSet>
-        <outputSet>
-        </outputSet>
-      </ioSpecification>
       <potentialOwner>
         <resourceAssignmentExpression>
-          <formalExpression>paul</formalExpression>
+          <formalExpression></formalExpression>
         </resourceAssignmentExpression>
       </potentialOwner>
     </userTask>
     <endEvent id="_7" name="End" >
         <terminateEventDefinition/>
     </endEvent>
+    <intermediateCatchEvent id="_9" name="Timer" >
+      <timerEventDefinition>
+        <timeCycle xsi:type="tFormalExpression">10s###0</timeCycle>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
 
     <!-- connections -->
     <sequenceFlow id="_1-_4" sourceRef="_1" targetRef="_4" />
-    <sequenceFlow id="_4-_5" sourceRef="_4" targetRef="_5" />
-    <sequenceFlow id="_5-_6" sourceRef="_5" targetRef="_6" />
-    <sequenceFlow id="_6-_7" sourceRef="_6" targetRef="_7" />
+    <sequenceFlow id="_9-_7" sourceRef="_9" targetRef="_7" />
+    <sequenceFlow id="_4-_9" sourceRef="_4" targetRef="_9" />
 
   </process>
 
   <bpmndi:BPMNDiagram>
     <bpmndi:BPMNPlane bpmnElement="com.saiful.phdprocess.DynamicAdaptation" >
       <bpmndi:BPMNShape bpmnElement="_1" >
-        <dc:Bounds x="16" y="16" width="48" height="48" />
+        <dc:Bounds x="18" y="24" width="48" height="48" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="_4" >
-        <dc:Bounds x="92" y="20" width="100" height="48" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="_5" >
-        <dc:Bounds x="239" y="16" width="80" height="48" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="_6" >
-        <dc:Bounds x="382" y="43" width="100" height="48" />
+        <dc:Bounds x="135" y="22" width="100" height="48" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="_7" >
-        <dc:Bounds x="543" y="62" width="48" height="48" />
+        <dc:Bounds x="535" y="27" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_9" >
+        <dc:Bounds x="316" y="21" width="48" height="48" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="_1-_4" >
-        <di:waypoint x="40" y="40" />
-        <di:waypoint x="142" y="44" />
+        <di:waypoint x="42" y="48" />
+        <di:waypoint x="185" y="46" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="_4-_5" >
-        <di:waypoint x="142" y="44" />
-        <di:waypoint x="279" y="40" />
+      <bpmndi:BPMNEdge bpmnElement="_9-_7" >
+        <di:waypoint x="340" y="45" />
+        <di:waypoint x="559" y="51" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="_5-_6" >
-        <di:waypoint x="279" y="40" />
-        <di:waypoint x="432" y="67" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="_6-_7" >
-        <di:waypoint x="432" y="67" />
-        <di:waypoint x="567" y="86" />
+      <bpmndi:BPMNEdge bpmnElement="_4-_9" >
+        <di:waypoint x="185" y="46" />
+        <di:waypoint x="340" y="45" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -6,24 +6,42 @@ import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.kie.api.task.model.Task;
 import java.io.StringReader;
 import java.util.HashMap;
+import org.kie.api.task.model.Content;
+import org.kie.api.task.model.Task;
+import org.jbpm.services.task.impl.factories.TaskFactory;
+import org.jbpm.services.task.utils.ContentMarshallerHelper;
+import java.util.Map;
 
 global TaskService taskService;
 
-rule MyRule
+rule PassViva
   when
-        WorkflowProcessInstanceImpl($readiness: variables['readiness'] == "ok")
+        WorkflowProcessInstanceImpl($vivaresult: variables['vivaresult'] == "Pass")
   then
-    System.out.println(">>>>>>>>>>>>>> from BR -> "+$readiness);
-
-    //String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
-    //str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('paul') ], }),";
-    //str += "names = [ new I18NText( 'en-UK', 'Viva Result')] })";
+    	System.out.println("Congratulation, your viva result: "+$vivaresult);
     
-    //Task task = ( Task )  TaskFactory.evalTask( new StringReader( str ));
-    //taskService.addTask(task,new HashMap<String, Object>());
+end
 
-    //long taskId = task.getId();
-    //taskService.start(taskId,"paul" );
-    //taskService.complete(taskId, "paul", new HashMap<String, Object>() );  
-    
+rule ResubmitViva
+  when
+        WorkflowProcessInstanceImpl($vivaresult: variables['vivaresult'] == "Resubmit")
+  then
+    	System.out.println("Your viva result action: "+$vivaresult);
+
+    	String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('paul') ], }),";
+        str += "names = [ new I18NText( 'en-UK', 'Viva Result')] })";
+        
+        Task task = ( Task )  TaskFactory.evalTask( new StringReader( str ));
+        taskService.addTask(task,new HashMap<String, Object>());
+
+        long taskId = task.getId();
+        taskService.start(taskId,"paul" );
+        
+        Map<String, Object> vivaResubmitOutput = new HashMap<String, Object>();
+        vivaResubmitOutput.put("out.vivaResubmit", "Pass");
+        
+        taskService.complete(taskId, "paul", vivaResubmitOutput );
+                
+        System.out.println("Thesis resubmission result: " + vivaResubmitOutput.get("out.vivaResubmit"));      
 end

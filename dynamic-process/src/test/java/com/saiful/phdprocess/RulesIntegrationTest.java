@@ -15,9 +15,7 @@ package com.saiful.phdprocess;
  * limitations under the License.
  */
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.io.StringReader;
 import java.util.HashMap;
@@ -28,18 +26,20 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 
-//import org.drools.event.rule.ActivationCreatedEvent;
-
+import org.drools.core.spi.ProcessContext;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventLister;
 import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
 import org.jbpm.runtime.manager.impl.cdi.InjectableRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.task.SynchronizedTaskService;
 import org.jbpm.runtime.manager.util.TestUtil;
+import org.jbpm.services.task.impl.factories.TaskFactory;
+import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -48,27 +48,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
+
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
+import org.kie.api.task.model.Content;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
+import org.kie.internal.event.KnowledgeRuntimeEventManager;
 import org.kie.internal.io.ResourceFactory;
+import org.kie.internal.logger.KnowledgeRuntimeLoggerFactory;
 import org.kie.internal.runtime.manager.RuntimeManagerFactory;
 import org.kie.internal.runtime.manager.context.EmptyContext;
-import org.kie.api.task.model.Status;
-import org.jbpm.services.task.impl.model.ContentDataImpl;
-import org.jbpm.services.task.utils.ContentMarshallerHelper;
-
-
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
-import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventLister;
-import org.jbpm.services.task.impl.factories.TaskFactory;
-import org.kie.internal.event.KnowledgeRuntimeEventManager;
-import org.kie.internal.logger.KnowledgeRuntimeLoggerFactory;
+
+import static org.junit.Assert.*;
+
 
 /**
  *
@@ -165,7 +163,6 @@ public class RulesIntegrationTest {
                 .entityManagerFactory(emf)
                 .registerableItemsFactory(InjectableRegisterableItemsFactory.getFactory(beanManager, null));
 
-        //builder.addAsset(ResourceFactory.newClassPathResource("phdrepo/mapping.drl"), ResourceType.DRL);
         builder.addAsset(ResourceFactory.newClassPathResource("phdrepo/BPMN2-RuleTask2.drl"), ResourceType.DRL);
         builder.addAsset(ResourceFactory.newClassPathResource("phdrepo/BPMN2-RuleTask2.bpmn2"), ResourceType.BPMN2);
 
@@ -182,10 +179,9 @@ public class RulesIntegrationTest {
 
         RuntimeEngine runtime = manager.getRuntimeEngine(context);
         final KieSession ksession = runtime.getKieSession();
-        KnowledgeRuntimeLoggerFactory.newConsoleLogger((KnowledgeRuntimeEventManager) ksession);
+
+		KnowledgeRuntimeLoggerFactory.newConsoleLogger((KnowledgeRuntimeEventManager) ksession);
         ksession.addEventListener(new RuleAwareProcessEventLister());
-
-
 
         TaskService taskService = runtime.getTaskService();
 
@@ -194,71 +190,33 @@ public class RulesIntegrationTest {
 
         ksession.setGlobal("taskService", taskService);
 
-        //Student student = new Student("Saiful", 19);
+        Student student = new Student("Saiful", 40);
 
         Map<String, Object> params = new HashMap<String, Object>();
-        //params.put("student", student);
-        params.put("readiness", "");
+        params.put("student", student);
         params.put("vivaresult","");
-        //params.put("studentid", "saiful");
 
         ProcessInstance processInstance = ksession.createProcessInstance("com.saiful.phdprocess.DynamicAdaptation", params);
         System.out.println("Variables: " + ((WorkflowProcessInstanceImpl) processInstance).getVariables());
 
-
         ksession.startProcessInstance(processInstance.getId());
 
-        //assertEquals(processInstance.getState(), ProcessInstance.STATE_PENDING);
-
-
         List<TaskSummary> tasks = ((SynchronizedTaskService) taskService).getTasksAssignedByGroup("staff", "en-UK");
-        TaskSummary readinessReview = tasks.get(0);
 
-// Task readinessReviewTask = taskService.getTaskById(readinessReview.getId());
-// Content contentById = taskService.getContentById(readinessReviewTask.getTaskData().getDocumentContentId());
-// assertNotNull(contentById);
-//
-// Map<String, Object> taskContent = (Map<String, Object>) ContentMarshallerHelper.unmarshall(contentById.getContent(), null);
-// assertEquals("saiful", taskContent.get("in.studentid"));
+        TaskSummary readinessReview = tasks.get(0);
 
         taskService.claim(readinessReview.getId(), "paul");
         taskService.start(readinessReview.getId(), "paul");
 
         Map<String, Object> hrOutput = new HashMap<String, Object>();
-        hrOutput.put("out.readiness", "ok");
+        hrOutput.put("out.vivaresult", "Resubmit");
 
         taskService.complete(readinessReview.getId(), "paul", hrOutput);
-        //assertNotNull(contentById);
-
-
-        //assertTrue(list.size() == 1);
-        // assertProcessInstanceCompleted(processInstance.getId(), ksession);
 
         ksession.fireAllRules();
         
-        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
-        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('paul') ], }),";
-        str += "names = [ new I18NText( 'en-UK', 'Viva Result')] })";
+        System.out.println("<<<<<<<< Process Complete >>>>>>>>");
         
-        Task task = ( Task )  TaskFactory.evalTask( new StringReader( str ));
-        taskService.addTask(task,new HashMap<String, Object>());
-
-        long taskId = task.getId();
-        taskService.start(taskId,"paul" );
-        
-        Map<String, Object> vivaresultOutput = new HashMap<String, Object>();
-        vivaresultOutput.put("out.vivaResult", "pass");
-        
-        taskService.complete(taskId, "paul", vivaresultOutput );
-        
-        assertEquals(Status.Completed, task.getTaskData().getStatus());
-
-      
-        System.out.println("Variables: " + ((WorkflowProcessInstanceImpl) processInstance).getVariables());
-        System.out.println(">>> Removed Test> ");
     }
 
-    private void assertProcessInstanceCompleted(long processInstanceId, KieSession ksession) {
-        assertNull(ksession.getProcessInstance(processInstanceId));
-    }
 }
