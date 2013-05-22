@@ -1,0 +1,70 @@
+package com.sample;
+import com.saiful.phdprocess.*;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.kie.api.task.TaskService;
+import org.jbpm.services.task.impl.factories.TaskFactory;
+import org.kie.api.task.model.Task;
+import java.io.StringReader;
+import java.util.HashMap;
+import org.kie.api.task.model.Content;
+import org.kie.api.task.model.Task;
+import org.jbpm.services.task.impl.factories.TaskFactory;
+import org.jbpm.services.task.utils.ContentMarshallerHelper;
+import java.util.Map;
+
+global TaskService taskService;
+
+rule FrequencyCheck1
+ruleflow-group "c1" 
+  when
+  		// check the how many meeting task have been conducted within 3 months
+  		// if less than 3 meeting
+  then
+    	System.out.println("ruleflow-group c1 triggered");
+  	    gmailWorkItemHandler gt = new gmailWorkItemHandler("workflow.researcher@gmail.com", "workflow");
+		gt.sendGmail("omar.saiful@gmail.com", "", "", "Supervisory Meeting Remider", "You should have done mare then 3 meetings...");
+  end
+
+rule FrequencyCheck2
+ruleflow-group "c2" 
+  when
+  		// check the how many meeting task have been conducted within 6 months
+  		// if less than 6 meeting
+  then
+    	System.out.println("ruleflow-group c2 triggered");
+		 gmailWorkItemHandler gt = new gmailWorkItemHandler("workflow.researcher@gmail.com", "workflow");
+		 gt.sendGmail("omar.saiful@gmail.com", "", "", "Supervisory Meeting Remider", "You should have done mare then 6 meetings...");
+end
+
+rule PassViva
+  when
+        WorkflowProcessInstanceImpl($progressreview: variables['ProgressReport'] == "proceed")
+  then
+    	System.out.println("Congratulation, progress review result: "+$progressreview);
+    
+end
+
+rule ResubmitViva
+  when
+        WorkflowProcessInstanceImpl($progressreview: variables['ProgressReport'] == "resubmit")
+  then
+
+    	String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('paul') ], }),";
+        str += "names = [ new I18NText( 'en-UK', 'ReconductProgressReview')] })";
+        
+        Task task = ( Task )  TaskFactory.evalTask( new StringReader( str ));
+        taskService.addTask(task,new HashMap<String, Object>());
+		System.out.println("paul executing task reconduct progress review (" + task.getId()+")" );
+        
+        long taskId = task.getId();       
+        taskService.start(taskId,"paul" );
+        
+        Map<String, Object> vivaResubmitOutput = new HashMap<String, Object>();
+        vivaResubmitOutput.put("out.vivaResubmit", "proceed");
+        
+        taskService.complete(taskId, "paul", vivaResubmitOutput );
+              
+        System.out.println("Reconduct progress review result: " + vivaResubmitOutput.get("out.vivaResubmit"));      
+		
+end
